@@ -1,3 +1,5 @@
+TECHNICAL SPECIFICATION:
+
 # StreamCrypt Library — Complete Specification, Diagram & Animation
 
 ## Part 1: Full TypeScript Class Specifications
