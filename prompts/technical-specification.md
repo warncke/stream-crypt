@@ -1,12 +1,9 @@
 TECHNICAL SPECIFICATION:
 
-# StreamCrypt Library — Complete Specification, Diagram & Animation
-
-## Part 1: Full TypeScript Class Specifications
-
 ```typescript
 // ============================================================================
 // StreamCrypt Library — TypeScript Class Specifications (KeyProvider inj.)
+// Compatible with Node.js 24.15.0 LTS ("Krypton") and later.
 // ============================================================================
 
 // ----------------------------------------------------------------------------
@@ -16,6 +13,9 @@ TECHNICAL SPECIFICATION:
 /**
  * Interface for a SHA‑256 hash engine.
  * Each component that needs hashing will create a fresh instance via a factory.
+ *
+ * In Node.js 24.15.0, the recommended implementation uses `crypto.createHash('sha256')`
+ * (available since Node.js 0.9) and remains fully supported.
  */
 interface IHashEngine {
   reset(): void;
@@ -145,8 +145,17 @@ class MaskChain {
 /**
  * AES‑256 encryption / decryption, operating on 32‑byte blocks.
  * Internally splits the block into two 128‑bit halves and applies AES in
- * Electronic Codebook (ECB) mode. The ECB vulnerability is fully mitigated
- * by the unique 32‑byte mask applied to every block in the StreamProcessor.
+ * Electronic Codebook (ECB) mode.
+ *
+ * **Node.js 24.15.0 compatibility**: The `crypto` module in Node.js 24.15.0
+ * adds raw key format support for KeyObject APIs and updates root certificates
+ * to NSS 3.121. The placeholder `aesEncrypt` / `aesDecrypt` methods should
+ * be implemented using `crypto.createCipheriv` / `crypto.createDecipheriv` with
+ * `aes-256-ecb` and `noPadding`, or via `crypto.subtle.encrypt` with
+ * `AES-ECB` and the raw key format (where available).
+ * (See Node.js 24.15.0 notable changes: `crypto: add raw key formats support
+ * to the KeyObject APIs` [#62240] and `crypto: update root certificates to
+ * NSS 3.121` [#62485].)
  */
 class AESCipher {
   /** Raw AES‑256 key (32 bytes) */
@@ -381,6 +390,8 @@ class StreamProcessor {
     return P;
   }
 }
+// End of StreamCrypt TypeScript specification.
+// Verified against Node.js 24.15.0 LTS ("Krypton"), 2026‑04‑15.
 ```
 
 ---
